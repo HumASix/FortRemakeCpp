@@ -6,7 +6,9 @@ public:
 
 	Round(decimal X, decimal Y, decimal R);
 
-	virtual boolean hitTestPoint(decimal X, decimal Y) override;
+	virtual ~Round() = default;
 
-	virtual void draw(Graphics2D g2d) override;
+	virtual bool hitTestPoint(decimal X, decimal Y) override;
+
+	virtual void draw(Graphics2D* g2d) override;
 };

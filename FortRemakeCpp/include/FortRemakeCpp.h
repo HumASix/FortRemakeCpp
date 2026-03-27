@@ -4,5 +4,10 @@
 #pragma once
 
 #include <iostream>
+#include "Graphics2D.h"
+#include "Poly.h"
+#include "Rect.h"
+#include "Round.h"
+#include "Sector.h"
 
 // TODO: 在此处引用程序需要的其他标头。

@@ -3,7 +3,7 @@
 Round::Round(decimal X, decimal Y, decimal R) :Shape(X, Y), r(R) { ; }
 
 
-boolean Round::hitTestPoint(decimal X, decimal Y) {
+bool Round::hitTestPoint(decimal X, decimal Y) {
 	if (X - x > r || Y - y > r || x - X > r || y - Y > r) {
 		return false;
 	}
@@ -12,7 +12,7 @@ boolean Round::hitTestPoint(decimal X, decimal Y) {
 	return dx * dx + dy * dy <= r * r;
 }
 
-void Round::draw(Graphics2D g2d) {
-	g2d.drawOval((int)(x - r), (int)(y - r), (int)(r * 2), (int)(r * 2));
+void Round::draw(Graphics2D* g2d) {
+	g2d->drawOval((int)(x - r), (int)(y - r), (int)(r * 2), (int)(r * 2));
 }
 

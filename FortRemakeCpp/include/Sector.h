@@ -14,10 +14,11 @@ public:
 	decimal a;
 
 	Sector(decimal X, decimal Y, decimal R, decimal angle, decimal direction);
+	virtual ~Sector() = default;
 
-	virtual boolean hitTestPoint(decimal X, decimal Y) override; 
+	virtual bool hitTestPoint(decimal X, decimal Y) override; 
 
 	void update();
 
-	virtual void draw(Graphics2D g2d) override;
+	virtual void draw(Graphics2D* g2d) override;
 };
