@@ -1,5 +1,5 @@
 #include "Graphics2D.h"
-
+using namespace std;
 Graphics2D::Graphics2D(int w, int h, const char* title)
     : width(w), height(h)
 {
@@ -18,11 +18,11 @@ Graphics2D::Graphics2D(int w, int h, const char* title)
     );
 
     hdc = GetDC(hwnd);
-
     memDC = CreateCompatibleDC(hdc);
     memBitmap = CreateCompatibleBitmap(hdc, w, h);
     oldBitmap = (HBITMAP)SelectObject(memDC, memBitmap);
-
+    hDefaultBrush = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
+    SelectObject(memDC, hDefaultBrush);
     running = true;
     ShowWindow(hwnd, 1);
     UpdateWindow(hwnd);
@@ -74,6 +74,16 @@ void Graphics2D::drawPie(decimal x, decimal y, decimal r, decimal centerAngleRad
     Pie(memDC, (int)(x - r), (int)(y - r), (int)(x + r), (int)(y + r), x2, y2, x1, y1);
 }
 
+void Graphics2D::drawArc(decimal x, decimal y, decimal r, decimal centerAngleRad, decimal sweepRad) {
+    decimal startRad = centerAngleRad - sweepRad * 0.5F;
+    decimal endRad = centerAngleRad + sweepRad * 0.5F;
+    int x1 = (int)(x + r * cos(startRad));
+    int y1 = (int)(y + r * sin(startRad));
+    int x2 = (int)(x + r * cos(endRad));
+    int y2 = (int)(y + r * sin(endRad));
+    Arc(memDC, (int)(x - r), (int)(y - r), (int)(x + r), (int)(y + r), x2, y2, x1, y1);
+}
+
 void Graphics2D::drawOval(decimal x, decimal y, decimal w, decimal h) {
     Ellipse(memDC, (int)x, (int)y, (int)(x + w), (int)(y + h));
 }
@@ -85,7 +95,7 @@ void Graphics2D::drawRect(decimal x1, decimal y1, decimal x2, decimal y2) {
 void Graphics2D::drawPolygon(const vector<Point>& points, decimal offsetX, decimal offsetY) {
     if (points.size() < 2) return;
     MoveToEx(memDC, (int)(points[0].x + offsetX), (int)(points[0].y + offsetY), NULL);
-    for (int i = 1;i < points.size();i++) {
+    for (unsigned i = 1;i < points.size();i++) {
         LineTo(memDC, (int)(points[i].x + offsetX), (int)(points[i].y + offsetY));
     }
     LineTo(memDC, (int)(points[0].x + offsetX), (int)(points[0].y + offsetY));

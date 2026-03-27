@@ -1,6 +1,7 @@
 #include "Round.h"
+using namespace std;
 
-Round::Round(decimal X, decimal Y, decimal R) :Shape(X, Y), r(R) { ; }
+Round::Round(decimal X, decimal Y, decimal R, bool owned) :Shape(X, Y, owned), r(R) { ; }
 
 
 bool Round::hitTestPoint(decimal X, decimal Y) {

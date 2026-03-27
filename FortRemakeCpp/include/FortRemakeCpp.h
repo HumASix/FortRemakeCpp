@@ -2,12 +2,10 @@
 // 或项目特定的包含文件。
 
 #pragma once
-
-#include <iostream>
+#include "General.h"
 #include "Graphics2D.h"
-#include "Poly.h"
-#include "Rect.h"
-#include "Round.h"
-#include "Sector.h"
+#include "CompositeShape.h"
+#include "Base.h"
+#include "Game.h"
 
 // TODO: 在此处引用程序需要的其他标头。

@@ -1,7 +1,7 @@
 #include "Shape.h"
+using namespace std;
 
-
-Shape::Shape(decimal X, decimal Y) :x(X), y(Y) {
+Shape::Shape(decimal X, decimal Y, bool owned) :x(X), y(Y), owned(owned) {
 	id = -2147483648;
 }
 

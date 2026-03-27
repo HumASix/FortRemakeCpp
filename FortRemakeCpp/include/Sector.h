@@ -1,5 +1,4 @@
 #pragma once
-#include "General.h"
 #include "Shape.h"
 class Sector :public Shape {     //扇形类（不能超过半圆）
 
@@ -13,7 +12,7 @@ public:
 	decimal dir;
 	decimal a;
 
-	Sector(decimal X, decimal Y, decimal R, decimal angle, decimal direction);
+	Sector(decimal X, decimal Y, decimal R, decimal angle, decimal direction, bool owned = false);
 	virtual ~Sector() = default;
 
 	virtual bool hitTestPoint(decimal X, decimal Y) override; 

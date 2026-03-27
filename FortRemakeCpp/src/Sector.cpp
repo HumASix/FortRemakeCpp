@@ -1,6 +1,7 @@
 #include "Sector.h"
+using namespace std;
 
-Sector::Sector(decimal X, decimal Y, decimal R, decimal angle, decimal direction) :Shape(X, Y), r(R) {
+Sector::Sector(decimal X, decimal Y, decimal R, decimal angle, decimal direction, bool owned) :Shape(X, Y, owned), r(R) {
 	a = angle * TORAD;
 	dir = direction * TORAD;
 	update();

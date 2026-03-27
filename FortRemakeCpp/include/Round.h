@@ -4,7 +4,7 @@ class Round :public Shape {   //‘≤–Œ¿‡
 public:
 	decimal r;
 
-	Round(decimal X, decimal Y, decimal R);
+	Round(decimal X, decimal Y, decimal R, bool owned = false);
 
 	virtual ~Round() = default;
 

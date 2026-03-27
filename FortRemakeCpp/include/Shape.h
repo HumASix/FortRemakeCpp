@@ -1,15 +1,17 @@
 #pragma once
 #include "Graphics2D.h"
 #include "General.h"
-#include <cmath>
 
 class Shape {   //最基本的抽象形状类
+    friend class CompositeShape;
+private:
+    bool owned;
 public:
     decimal x;
     decimal y;
     int id;
 
-    Shape(decimal X, decimal Y);
+    Shape(decimal X, decimal Y, bool owned = false);
 
     virtual ~Shape() = default;
 
@@ -20,9 +22,9 @@ public:
 
     virtual bool hitTestPoint(decimal X, decimal Y) = 0;     //点碰撞
 
-    void move(decimal X, decimal Y);
+    virtual void move(decimal X, decimal Y);
 
-    void moveTo(decimal X, decimal Y);
+    virtual void moveTo(decimal X, decimal Y);
 
     void xySync();
 

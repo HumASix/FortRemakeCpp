@@ -1,7 +1,7 @@
 #include "Poly.h"
+using namespace std;
 
-
-Poly::Poly(decimal X, decimal Y, const vector<Point>& vertices) :Shape(X, Y), localVertices(vertices) {
+Poly::Poly(decimal X, decimal Y, const vector<Point>& vertices, bool owned) :Shape(X, Y, owned), localVertices(vertices) {
 	minX = INFINITY;
 	maxX = -INFINITY;
 	minY = INFINITY;
