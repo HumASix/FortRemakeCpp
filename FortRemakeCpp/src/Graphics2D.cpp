@@ -36,9 +36,25 @@ Graphics2D::~Graphics2D() {
     DestroyWindow(hwnd);
 }
 
+
+bool Graphics2D::tryToOccupyBy(Game* const game) {
+    if (whoIsUsingThis == nullptr) {
+        whoIsUsingThis = game;
+        return true;
+    }
+    return false;
+}
+//bool Graphics2D::isOccupiedBy(Game* const game);
+void Graphics2D::release(Game* const game) {
+    if (whoIsUsingThis == game) {
+        whoIsUsingThis = nullptr;
+    }
+}
+
 bool Graphics2D::isOpen() const {
     return running;
 }
+
 
 void Graphics2D::handleEvents() {
     MSG msg{};
@@ -60,45 +76,45 @@ void Graphics2D::update() {
 }
 
 void Graphics2D::drawLine(decimal x1, decimal y1, decimal x2, decimal y2) {
-    MoveToEx(memDC, (int)x1, (int)y1, NULL);
-    LineTo(memDC, (int)x2, (int)y2);
+    MoveToEx(memDC, (int)(G2DSCALE * x1 + G2DTRANSX), (int)(G2DSCALE * y1 + G2DTRANSY), NULL);
+    LineTo(memDC, (int)(G2DSCALE * x2 + G2DTRANSX), (int)(G2DSCALE * y2 + G2DTRANSY));
 }
 
 void Graphics2D::drawPie(decimal x, decimal y, decimal r, decimal centerAngleRad, decimal sweepRad) {
     decimal startRad = centerAngleRad - sweepRad * 0.5F;
     decimal endRad = centerAngleRad + sweepRad * 0.5F;
-    int x1 = (int)(x + r * cos(startRad));
-    int y1 = (int)(y + r * sin(startRad));
-    int x2 = (int)(x + r * cos(endRad));
-    int y2 = (int)(y + r * sin(endRad));
-    Pie(memDC, (int)(x - r), (int)(y - r), (int)(x + r), (int)(y + r), x2, y2, x1, y1);
+    int x1 = (int)(G2DSCALE * (x + r * cos(startRad)) + G2DTRANSX);
+    int y1 = (int)(G2DSCALE * (y + r * sin(startRad)) + G2DTRANSY);
+    int x2 = (int)(G2DSCALE * (x + r * cos(endRad)) + G2DTRANSX);
+    int y2 = (int)(G2DSCALE * (y + r * sin(endRad)) + G2DTRANSY);
+    Pie(memDC, (int)(G2DSCALE * (x - r) + G2DTRANSX), (int)(G2DSCALE * (y - r) + G2DTRANSY), (int)(G2DSCALE * (x + r) + G2DTRANSX), (int)(G2DSCALE * (y + r) + G2DTRANSY), x2, y2, x1, y1);
 }
 
 void Graphics2D::drawArc(decimal x, decimal y, decimal r, decimal centerAngleRad, decimal sweepRad) {
     decimal startRad = centerAngleRad - sweepRad * 0.5F;
     decimal endRad = centerAngleRad + sweepRad * 0.5F;
-    int x1 = (int)(x + r * cos(startRad));
-    int y1 = (int)(y + r * sin(startRad));
-    int x2 = (int)(x + r * cos(endRad));
-    int y2 = (int)(y + r * sin(endRad));
-    Arc(memDC, (int)(x - r), (int)(y - r), (int)(x + r), (int)(y + r), x2, y2, x1, y1);
+    int x1 = (int)(G2DSCALE * (x + r * cos(startRad)) + G2DTRANSX);
+    int y1 = (int)(G2DSCALE * (y + r * sin(startRad)) + G2DTRANSY);
+    int x2 = (int)(G2DSCALE * (x + r * cos(endRad)) + G2DTRANSX);
+    int y2 = (int)(G2DSCALE * (y + r * sin(endRad)) + G2DTRANSY);
+    Arc(memDC, (int)(G2DSCALE * (x - r) + G2DTRANSX), (int)(G2DSCALE * (y - r) + G2DTRANSY), (int)(G2DSCALE * (x + r) + G2DTRANSX), (int)(G2DSCALE * (y + r) + G2DTRANSY), x2, y2, x1, y1);
 }
 
 void Graphics2D::drawOval(decimal x, decimal y, decimal w, decimal h) {
-    Ellipse(memDC, (int)x, (int)y, (int)(x + w), (int)(y + h));
+    Ellipse(memDC, (int)(G2DSCALE * x + G2DTRANSX), (int)(G2DSCALE * y + G2DTRANSY), (int)(G2DSCALE * (x + w) + G2DTRANSX), (int)(G2DSCALE * (y + h) + G2DTRANSY));
 }
 
 void Graphics2D::drawRect(decimal x1, decimal y1, decimal x2, decimal y2) {
-    Rectangle(memDC, (int)x1, (int)y1, (int)x2, (int)y2);
+    Rectangle(memDC, (int)(G2DSCALE * x1 + G2DTRANSX), (int)(G2DSCALE * y1 + G2DTRANSY), (int)(G2DSCALE * x2 + G2DTRANSX), (int)(G2DSCALE * y2 + G2DTRANSY));
 }
 
 void Graphics2D::drawPolygon(const vector<Point>& points, decimal offsetX, decimal offsetY) {
     if (points.size() < 2) return;
-    MoveToEx(memDC, (int)(points[0].x + offsetX), (int)(points[0].y + offsetY), NULL);
+    MoveToEx(memDC, (int)(G2DSCALE * (points[0].x + offsetX + G2DTRANSX)), (int)(G2DSCALE * (points[0].y + offsetY) + G2DTRANSY), NULL);
     for (unsigned i = 1;i < points.size();i++) {
-        LineTo(memDC, (int)(points[i].x + offsetX), (int)(points[i].y + offsetY));
+        LineTo(memDC, (int)(G2DSCALE * (points[i].x + offsetX) + G2DTRANSX), (int)(G2DSCALE * (points[i].y + offsetY) + G2DTRANSY));
     }
-    LineTo(memDC, (int)(points[0].x + offsetX), (int)(points[0].y + offsetY));
+    LineTo(memDC, (int)(G2DSCALE * (points[0].x + offsetX + G2DTRANSX)), (int)(G2DSCALE * (points[0].y + offsetY) + G2DTRANSY));
 }
 
 LRESULT CALLBACK Graphics2D::WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {

@@ -2,22 +2,19 @@
 #include "Game.h"
 
 //TODO：车板可以像要塞壁一样优化碰撞，同时也不再需要子图形（最终版本）
-Base::Base(Game* game, decimal X, decimal Y, int S) :CompositeShape(X, Y), game(game) {
+Base::Base(Game* game, decimal X, decimal Y, short S) :Shape(X, Y), game(game) {
 	side = S;
 	xx = X;
 	yy = Y;
 	old_x = X;
 	old_y = Y;
-	(*this) << roundedRectangle(-191.5F, -15.5F, 383, 43, 11.5F)
-		<< circle(-108.7F, 20, 31.5F)
-		<< circle(108.7F, 20, 31.5F);
 	id = game->addElement(this);
-	game->wall[side].addShape(this);
+	game->wall[side] << this;
 }
 
 void Base::kill() {
-	//game->bases[side] = nullptr;
 	game->elements.erase(id);
+	game->wall[side].removeShape(this);
 }
 
 void Base::step() {     //照搬原版逻辑
@@ -109,4 +106,10 @@ bool Base::hitTestPoint(decimal X, decimal Y) {
 		dx += 180.F;
 	}
 	return dx * dx + dy * dy <= 132.25F;
+}
+
+void Base::draw(Graphics2D* g2d) {
+	RoundedRect(x, y, -191.5F, -15.5F, 383, 43, 11.5F).draw(g2d);
+	Round(x - 108.7F, y + 20.F, 31.5F).draw(g2d);
+	Round(x + 108.7F, y + 20.F, 31.5F).draw(g2d);
 }

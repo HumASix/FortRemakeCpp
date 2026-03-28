@@ -3,15 +3,15 @@
 #include "Shape.h"
 #include "CompositeShape.h"
 #include "Base.h"
+#include "Core.h"
+#include "Settings.h"
 
 class Game {
 private:
     bool end = false;
-    int j; //临时变量
-    int i; //临时变量
-    decimal wrk; //临时变量
+    bool canDraw = false;
     //static GameWindow window;
-    bool main_setup(const std::string* codes);
+    bool main_setup(const std::string** codes);
     void base_move();
     void judge();
     void update();
@@ -23,7 +23,7 @@ public:
     short hp[2] = { 100, 100 };    //要塞血量
     short hp0_flg[2] = { 0, 0 };   //要塞爆炸标记
     bool dokkan_flg[2] = { false, false };    //受到撞击标记，有贽玉不会变成true
-    short saihai_cnt[2] = { 0, 0 };        //采玉效果剩余时间
+    int saihai_cnt[2] = { 0, 0 };        //采玉效果剩余时间
     short saihai_rot[2] = { 0, 0 };        //采玉效果角度
     short dead_last[2] = { 0, 0 };         //上一个死亡的单位种类
     decimal core_x[2] = { 0, 0 };
@@ -31,7 +31,7 @@ public:
     unsigned time = 0;     //计时器
     //public Utils[] seeder = { new Utils(),new Utils() };
     Base* bases[2] = { nullptr,nullptr };     //双方车板（要不要用指针形式存储？）
-    //public Core[] cores = new Core[]{ null, null };    //双方老家
+    Core* cores[2] = { nullptr,nullptr };    //双方老家
     std::map<unsigned, Shape*> elements = std::map<unsigned, Shape*>();   //所有需要参与循环的部件
     CompositeShape wall[2] = { CompositeShape(0,0), CompositeShape(0,0) };   //墙体
     CompositeShape unit[2] = { CompositeShape(0,0), CompositeShape(0,0) };   //单位
@@ -51,7 +51,7 @@ public:
     Game();
     ~Game();
     static short pskeyIndexOf(char c);//密码表
-    Result run(const std::string& code1, const std::string& code2);
+    Result run(const std::string& code1, const std::string& code2, Graphics2D* g2d = nullptr);
     unsigned addElement(Shape* s);//增加新元素，返回id值
     void unit_make(decimal X, decimal Y, int R, int TYPE, int S);
 };

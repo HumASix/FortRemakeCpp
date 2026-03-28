@@ -8,8 +8,9 @@ using namespace std;
 int main()
 {
 	cout << "Hello CMake." << endl;
-    Graphics2D win(800, 600, "面向对象绘图窗口");
+    Graphics2D win(1440, 600, "面向对象绘图窗口");
     Game* game = new Game();
+    /*
     vector<Shape*> shapes;
     CompositeShape* s=new CompositeShape(100, 0);
     shapes.push_back(s);
@@ -18,22 +19,9 @@ int main()
         << s->polygon(222, 222, vector<Point>({ Point(11, 22), Point(-22,-11), Point(33,66) }))
         << s->sector(400, 200, 66, 40, 70);
     shapes.push_back(new RoundedRect(10, 10, 0, 0, 80, 50, 10));
-    shapes.push_back(new Base(game, 400, 300, 0));
-    while (win.isOpen()) {
-        win.handleEvents();
-        //测试绘图
-        // ======================
-        // 你的游戏逻辑
-        // ======================
-        // update();
-        // checkCollision();
-
-        win.clear();
-        for (Shape* shape : shapes) {
-            shape->draw(&win);
-        }
-        win.update();
-        // win.drawPolygon( ... );
-    }
+    shapes.push_back(new Base(game, 1920-240, 300, 0));
+    shapes.push_back(new Core(game, 650, 450, 0));
+    */
+    game->run("000P6R", "000P6R", nullptr);
 	return 0;
 }

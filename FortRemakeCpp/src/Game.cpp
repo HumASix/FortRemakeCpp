@@ -1,7 +1,11 @@
 #include "Game.h"
 using namespace std;
+using namespace chrono;
 Game::Game() {
 	
+}
+
+Game::~Game() {
 }
 
 short Game::pskeyIndexOf(char c) {
@@ -11,55 +15,49 @@ short Game::pskeyIndexOf(char c) {
 	else return -1;
 }
 
-Result Game::run(const string& code1, const string& code2) {
-	/*
+Result Game::run(const string& code1, const string& code2,Graphics2D* g2d ) {
 	for (int i = 0; i <= 1; i++) {
-		fort[i].addShape(wall[i]);
-		fort[i].addShape(unit[i]);
+		fort[i] << &wall[i] << &unit[i];
 	}
 	for (int i = 0; i <= 1; i++) {
-		team[i].addShape(wall[i]);
-		team[i].addShape(unit[i]);
-		team[i].addShape(shield[i]);
-		team[i].addShape(atk[i]);
+		team[i] << &wall[i] << &unit[i] << &shield[i] << &atk[i];
+	}
+	if (g2d != nullptr) {
+		canDraw = g2d->tryToOccupyBy(this);
+	}
+	bases[0] = new Base(this, 240, 532, 0);
+	bases[1] = new Base(this, 1680, 532, 1);
+	const string* codes[2] = { &code1,&code2 };
+	if (!main_setup(codes)) {
+		return Result(-1, 0, 0, 0.f);
 	}
 
-	bases = new Base[]{ new Base(this, 240, 532, 0), new Base(this, 1680, 532, 1) };
+	 
+	unsigned timePerTick = Settings::maxTps > 0 ? (unsigned)(1e9 / Settings::maxTps) : 0;
+	auto lastTime = steady_clock::now();
+	auto startTime = lastTime;
 
-	if (!main_setup(new String[]{ code1, code2 })) {
-		return new Result(-1, 0, 0, 0.f);
-	}
-	/*稍后处理
-	if (ENABLE_VISUALIZATION) {
-		java.awt.EventQueue.invokeLater(() -> {
-			window = new GameWindow(1920, 960, 60).setList(new ArrayList<>(elements.values()));
-			window.setVisible(true);
-		});
-	}
-
-	 */
-	 /*
-	 long timePerTick = Settings.LOGIC_TPS > 0 ? 1000000000L / Settings.LOGIC_TPS : 0;
-	 long lastTime = System.nanoTime();
-	 long startTime = lastTime;
-
-	 while (time < Settings.max_run_time && !end) {
-		 long now = System.nanoTime();
-		 if (timePerTick == 0 || now - lastTime >= timePerTick) {
+	 while (time < Settings::maxFrame && !end) {
+		 auto now = steady_clock::now();
+		 if (timePerTick == 0 || duration_cast<nanoseconds>( now - lastTime).count() >= timePerTick) {
 			 lastTime = now;
 			 time++;
 			 base_move();    //要塞车移动
 			 judge();    //判断对局是否应该结束
 			 update();   //调用所有元素step()方法
-			 /*稍后处理
-			 if (ENABLE_VISUALIZATION && window != null) {
-				 window.setList(new ArrayList<>(elements.values()));
-				 window.requestRender();
+			 if (canDraw && g2d->isOpen()) {
+				 g2d->handleEvents();
+				 g2d->clear();
+				 for (auto& pair : elements) {
+					 pair.second->draw(g2d);
+				 }
+				 g2d->update();
 			 }
-
-			  *//*
 		 }
 	 }
+	 lastTime = steady_clock::now();
+	 double realTime = duration_cast<nanoseconds>(lastTime - startTime).count() / 1e9;
+	 cout << endl << "结束了，用时（秒）：" << realTime;
  /*
 	 long endTime = System.nanoTime();
 	 int status = -1;
@@ -83,61 +81,65 @@ Result Game::run(const string& code1, const string& code2) {
 	 }
 	 */
 	 //return new Result(status, winnerHp, time, (endTime - startTime) / 1000000000.F);
+	if (g2d != nullptr) {
+		g2d->release(this);
+	}
 	return Result(0, 0, 0, 0);
 }
 
-bool Game::main_setup(const string* codes) {      //初始布局
-	/*
-	i = 0;
+bool Game::main_setup(const string** codes) {      //初始布局
+	int i = 0;
 	while (i <= 1) {
-		code[i] = code[i].replaceAll("[^a-zA-Z0-9]", "");
-		if (code[i].length() % 6 != 0) {
+		string wrkStr = regex_replace(*codes[i], regex("[^a-zA-Z0-9]"), "");
+		if (wrkStr.length() % 6 != 0 || wrkStr.empty()) {
 			return false;
 		}
-		int[] xyr = to_xyr(code[i].substring(1, 6));
-		if (xyr[0] < 52 || xyr[0] > 328 || xyr[1] < 58 || xyr[1] > 334) {
+		Xyrt xyrt = to_xyrt(wrkStr, 0);
+		if (xyrt.x < 52 || xyrt.x > 328 || xyrt.y < 58 || xyrt.y > 334) {
 			return false;
 		}
 
-		Utils.universalSeed = Utils.universalSeed * (xyr[0] % 168 + 48) * (xyr[1] % 168 + 48);
-		int baseSeed = (xyr[0] % 168 + 48) * (xyr[1] % 168 + 48);
-		seeder[i].setSeed(baseSeed);
-		xyr[0] -= 190;
-		xyr[1] -= 400;
-		if (code[i].startsWith("1")) {
+		//Utils.universalSeed = Utils.universalSeed * (xyr[0] % 168 + 48) * (xyr[1] % 168 + 48);
+		//int baseSeed = (xyr[0] % 168 + 48) * (xyr[1] % 168 + 48);
+		//seeder[i].setSeed(baseSeed);
+		xyrt.x -= 190;
+		xyrt.y -= 400;
+		/*
+		if (xyrt.type==1) {
 			cores[i] = new BossCore(this, i == 1 ? -xyr[0] : xyr[0], xyr[1], i);
 		}
-		else if (code[i].startsWith("2")) {
+		else if (xyrt.type == 2) {
 			cores[i] = new BossCore2(this, i == 1 ? -xyr[0] : xyr[0], xyr[1], i);
 		}
 		else {
-			cores[i] = new Core(this, i == 1 ? -xyr[0] : xyr[0], xyr[1], i);
-		}
-		core_x[i] = cores[i].x;
-		core_y[i] = cores[i].y;
+		*/
+		cores[i] = new Core(this, i == 1 ? -xyrt.x : xyrt.x, xyrt.y, i);
+		//}
+		core_x[i] = cores[i]->x;
+		core_y[i] = cores[i]->y;
 		int wrkSeed;
-		j = 6;
+		int j = 6;
 		int wrkType;
-		while (j < code[i].length()) {
-			xyr = to_xyr(code[i].substring(j + 1, j + 6));
-			if (xyr[0] < 16 || xyr[0] > 364 || xyr[1] < 20 || xyr[1] > 369 || xyr[2] > 360) {
+		while (j < wrkStr.length()) {
+			xyrt = to_xyrt(wrkStr, j);
+			if (xyrt.x < 16 || xyrt.x > 364 || xyrt.y < 20 || xyrt.y > 369 || xyrt.r > 360) {
 				return false;
 			}
-			wrkSeed = baseSeed * (xyr[0] % 185 + 30) * (xyr[1] % 185 + 30);
+			//wrkSeed = baseSeed * (xyr[0] % 185 + 30) * (xyr[1] % 185 + 30);
 			if (i == 1) {
-				xyr[0] = (380 - xyr[0]) + 1490;
-				xyr[2] = 180 - xyr[2];
+				xyrt.x = (380 - xyrt.x) + 1490;
+				xyrt.r = 180 - xyrt.r;
 			}
 			else {
-				xyr[0] += 50;
+				xyrt.x += 50;
 			}
-			xyr[2] = (xyr[2] % 360 + 360) % 360;
-			xyr[1] += 132;
-			wrkType = pskey.indexOf(code[i].charAt(j));
-			if (wrkType < 1 || wrkType > 60) {
+			xyrt.r = (xyrt.r % 360 + 360) % 360;
+			xyrt.y += 132;
+			if (xyrt.type < 1 || xyrt.type > 60) {
 				return false;
 			}
-			unit_make(xyr[0], xyr[1], xyr[2], wrkType, i);
+			unit_make(xyrt.x, xyrt.y, xyrt.r, xyrt.type, i);
+			/*
 			if (wrkType == 13) {
 				ShotgunBall unit = (ShotgunBall)elements.get(ID - 1);
 				unit.setSeed(wrkSeed);
@@ -146,79 +148,78 @@ bool Game::main_setup(const string* codes) {      //初始布局
 				HenBall unit = (HenBall)elements.get(ID - 1);
 				unit.setSeed(wrkSeed);
 			}
+			*/
 			j += 6;
 		}
-		kekkaiFields[i] = new KekkaiField(this, i);   //界玉初始化
+		//kekkaiFields[i] = new KekkaiField(this, i);   //界玉初始化
 		i++;
 	}
-	*/
 	return true;
 }
 
 void Game::base_move() {    //车板移动
-	/*
 	dokkan_flg[0] = false;
 	dokkan_flg[1] = false;
 	norikomi_flg = false;
 	saihai_cnt[0]--;
 	saihai_cnt[1]--;
-	j = 0;
+	int j = 0;
 	while (j <= 1) {
 		if (hp0_flg[j] > 0) {
 			j++;
 			continue;
 		}
-		core_x[j] = cores[j].x;
-		core_y[j] = cores[j].y;
-		for (Shape s : unit[j].getShapes()) {
+		core_x[j] = cores[j]->x;
+		core_y[j] = cores[j]->y;
+		/*
+		for (Shape* s : unit[j].getShapes()) {
 			if (s instanceof TargetBall) {
 				core_x[j] = s.x;
 				core_y[j] = s.y;
 				break;
 			}
 		}
+		*/
 		j++;
 	}
-	if (hp0_flg[0] == 0 && hp0_flg[1] == 0 && bases[1].x - bases[1].xs - (bases[0].x + bases[0].xs) <= 380) {
+	if (hp0_flg[0] == 0 && hp0_flg[1] == 0 && bases[1]->x - bases[1]->xs - (bases[0]->x + bases[0]->xs) <= 380) {
 		norikomi_flg = true;
-		System.out.println("要塞相撞，时间: " + time);
+		cout << "要塞相撞，时间:" << time;
 		j = 0;
 		while (j <= 1) {
-			boolean nie_flg = false;
-			for (Shape s : unit[j].getShapes()) {
+			bool nie_flg = false;
+			/*
+			for (Shape* s : unit[j].getShapes()) {
 				if (s instanceof NieBall nie) {
 					nie.alarm = 6;
 					nie_flg = true;
 					break;
 				}
 			}
+			*/
 			if (nie_flg) {
 				j++;
 				continue;
 			}
-			wrk = (float)(Math.floor(bases[(1 - j)].xs * 5) + 1);
-			wrk = Math.round(wrk);
-			if (wrk < 0) {
-				wrk = 0;
-			}
-			hp[j] -= (int)wrk;
+			int wrkInt = floor(bases[(1 - j)]->xs * 5) + 1;
+			wrkInt = max(wrkInt, 0);
+			hp[j] -= wrkInt;
 			dokkan_flg[j] = true;
 			j++;
 		}
-		wrk = bases[0].xs;
-		bases[0].xs = -bases[1].xs;
-		if (bases[0].xs > -1) { bases[0].xs = -1; }
-		bases[1].xs = -wrk;
-		if (bases[1].xs > -1) { bases[1].xs = -1; }
-		bases[0].ys = (-bases[0].xs) * 2;
-		bases[1].ys = (-bases[1].xs) * 2;
+		decimal wrk = bases[0]->xs;
+		bases[0]->xs = -bases[1]->xs;
+		if (bases[0]->xs > -1)  bases[0]->xs = -1;
+		bases[1]->xs = -wrk;
+		if (bases[1]->xs > -1)  bases[1]->xs = -1;
+		bases[0]->ys = (-bases[0]->xs) * 2;
+		bases[1]->ys = (-bases[1]->xs) * 2;
 	}
-	*/
 	return;
 }
 
 void Game::judge() {    //裁决爆炸
-	i = 0;
+	int i = 0;
 	while (i <= 1) {
 		if (hp0_flg[i] == 0 && hp[i] < 1) {
 			hp0_flg[i] = 1;
@@ -232,7 +233,7 @@ void Game::judge() {    //裁决爆炸
 				//cores[i].kill();
 			}
 			if (hp0_flg[i] > 120) {
-				wrk = 0;
+				//wrk = 0;
 				hp[0] = max(0, hp[0]);
 				hp[1] = max(0, hp[1]);
 				end = true;
@@ -244,16 +245,14 @@ void Game::judge() {    //裁决爆炸
 }
 
 void Game::update() {  //单位更新
-	/*
-	List<Integer> keys = new ArrayList<>(elements.keySet());
-
-	for (Integer key : keys) {
-		if (!elements.containsKey(key)) {
-			continue;
+	vector<int> keys;
+	keys.reserve(elements.size());
+	for (const auto& p : elements) keys.push_back(p.first);
+	for (int key : keys) {
+		if (elements.contains(key)) {
+			elements.at(key)->step();
 		}
-		elements.get(key).step();
 	}
-	*/
 }
 
 Xyrt Game::to_xyrt(const string& str, unsigned offset) {    //5位61进制转x y r数组
