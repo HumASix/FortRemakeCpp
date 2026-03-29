@@ -1,13 +1,16 @@
 #pragma once
 #include <iostream>
 #include <vector>
-#include <map>
+#include <list>
 #include <string>
 #include <cmath>
 #include <regex>
 #include <chrono>
+#include <ctime>
+
 typedef float decimal;
 constexpr decimal TORAD = 0.017453292519943295F;
+constexpr decimal TODEG = 57.29577951308232088F;
 struct Point {
 	decimal x;
 	decimal y;
@@ -19,8 +22,13 @@ struct Result {
 	decimal time;
 };
 struct Xyrt {
-	short x;
-	short y;
-	short r;
-	short type;
+	int x;
+	int y;
+	int r;
+	int type;
+};
+enum KillAction {
+	NONE,
+	FAKEKILL,
+	KILL
 };

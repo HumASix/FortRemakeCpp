@@ -4,22 +4,22 @@
 #include "Round.h"
 
 class Game;
-class Core : public Shape {      //核心类
+class Core : public Shape {      //核心类（此类由Game负责Kill）
 
 protected:
     Game* const game;
 
 public:
-    short side;
+    int side;
     decimal unit_x;
     decimal unit_y;
     //bool dmg_flg = false;
 
-    Core(Game* game, decimal X, decimal Y, short S);
+    Core(Game* game, decimal X, decimal Y, int S);
 
-    void kill();
+    virtual void kill();
 
-    virtual void step() override;
+    virtual KillAction step() override;
 
     virtual bool hitTestPoint(decimal X, decimal Y) override;
 

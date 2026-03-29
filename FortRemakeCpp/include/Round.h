@@ -1,5 +1,6 @@
 #pragma once
 #include "Shape.h"
+
 class Round :public Shape {   //‘≤–Œ¿‡
 public:
 	decimal r;

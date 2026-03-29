@@ -2,7 +2,7 @@
 #include "Game.h"
 
 //TODO：车板可以像要塞壁一样优化碰撞，同时也不再需要子图形（最终版本）
-Base::Base(Game* game, decimal X, decimal Y, short S) :Shape(X, Y), game(game) {
+Base::Base(Game* game, decimal X, decimal Y, int S) :Shape(X, Y), game(game) {
 	side = S;
 	xx = X;
 	yy = Y;
@@ -13,11 +13,15 @@ Base::Base(Game* game, decimal X, decimal Y, short S) :Shape(X, Y), game(game) {
 }
 
 void Base::kill() {
-	game->elements.erase(id);
 	game->wall[side].removeShape(this);
+	died = true;
 }
 
-void Base::step() {     //照搬原版逻辑
+bool Base::isDied() {
+	return died;
+}
+
+KillAction Base::step() {     //照搬原版逻辑
 	xs = xs + (decimal)axl / 1000;
 	if (game->hp0_flg[side] >= 3) {
 		xs = 0;
@@ -69,6 +73,7 @@ void Base::step() {     //照搬原版逻辑
 			//game->cores[side].dmg_flg = true;
 		}
 	}
+	return KillAction::NONE;
 }
 
 bool Base::hitTestPoint(decimal X, decimal Y) {

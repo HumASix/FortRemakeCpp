@@ -8,7 +8,7 @@ Game::Game() {
 Game::~Game() {
 }
 
-short Game::pskeyIndexOf(char c) {
+int Game::pskeyIndexOf(char c) {
 	if (c >= 'a' && c <= 'z') return c - 87;
 	else if (c >= '0' && c <= '9') return c - 48;
 	else if (c >= 'A' && c <= 'Z') return c - 29;
@@ -48,8 +48,8 @@ Result Game::run(const string& code1, const string& code2,Graphics2D* g2d ) {
 			 if (canDraw && g2d->isOpen()) {
 				 g2d->handleEvents();
 				 g2d->clear();
-				 for (auto& pair : elements) {
-					 pair.second->draw(g2d);
+				 for (Shape* element : elements) {
+					 element->draw(g2d);
 				 }
 				 g2d->update();
 			 }
@@ -100,8 +100,8 @@ bool Game::main_setup(const string** codes) {      //初始布局
 		}
 
 		//Utils.universalSeed = Utils.universalSeed * (xyr[0] % 168 + 48) * (xyr[1] % 168 + 48);
-		//int baseSeed = (xyr[0] % 168 + 48) * (xyr[1] % 168 + 48);
-		//seeder[i].setSeed(baseSeed);
+		int baseSeed = (xyrt.x % 168 + 48) * (xyrt.y % 168 + 48);
+		seeder[i].setSeed(baseSeed);
 		xyrt.x -= 190;
 		xyrt.y -= 400;
 		/*
@@ -245,14 +245,43 @@ void Game::judge() {    //裁决爆炸
 }
 
 void Game::update() {  //单位更新
-	vector<int> keys;
-	keys.reserve(elements.size());
-	for (const auto& p : elements) keys.push_back(p.first);
-	for (int key : keys) {
-		if (elements.contains(key)) {
-			elements.at(key)->step();
+	if (elements.empty()) return;
+	unsigned idUntilExclude = ID;//本轮遍历截止ID（不含）
+	for (auto it = elements.begin();it != elements.end();) {
+		if ((*it)->id >= idUntilExclude) break;
+		switch ((*it)->step())
+		{
+		case KillAction::NONE: {
+			it++;
+			break;
+		}
+		case KillAction::FAKEKILL: {
+			Shape* toBeErased = *it;
+			toBeErased->fakeKill();
+			toBeErased->fakeKillCnt = 0;
+			it = elements.erase(it);
+			toBeErased->id = addElement(toBeErased);
+			break;
+		}
+		case KillAction::KILL: {
+			(*it)->kill();
+			delete (*it);
+			it = elements.erase(it);
+			break;
+		}
+		default:
+			break;
 		}
 	}
+	/*
+	for (int i = 0; i < element.size;i++) {
+		if (element[i].id > 本轮遍历截止id) {
+			break;
+		}
+		如果这样写，需要解决对象把自己删除以后i的问题
+		element[i].step(这里能不能把i当参数传进去，这样如果kill的话直接移除element里下标i的元素，省的查找自己在哪个下标了);
+	}
+	*/
 }
 
 Xyrt Game::to_xyrt(const string& str, unsigned offset) {    //5位61进制转x y r数组
@@ -270,7 +299,7 @@ Xyrt Game::to_xyrt(const string& str, unsigned offset) {    //5位61进制转x y r数
 }
 
 unsigned Game::addElement(Shape* s) {      //增加新元素，返回id值
-	elements.emplace(ID, s);
+	elements.push_back(s);
 	return ID++;
 }
 
@@ -283,6 +312,7 @@ unsigned Game::addElement(Shape* s) {      //增加新元素，返回id值
  */
 void Game::unit_make(float X, float Y, int R, int TYPE, int S) {   //创建单位
 	int wrk = 0;
+	Shape* created;
 	switch (TYPE) {
 		/*
 		case 1: new BowBall(this, X, Y, R, S, TYPE);break;
@@ -345,21 +375,21 @@ void Game::unit_make(float X, float Y, int R, int TYPE, int S) {   //创建单位
 		case 58: new Narrow(this, X, Y, S, TYPE); wrk = 1; break;
 		case 59: new Snipe(this, X, Y, S, TYPE); wrk = 1; break;
 		case 60: new Elevator(this, X, Y, S, TYPE); wrk = 1; break;
-		default: new Ball(this, X, Y, R, S, TYPE);break;
-		}
+		*/
+	default: {created = new Ball(this, X, Y, R, S, TYPE);break;}
+	}
 		switch (wrk) {
 		case 0: {
-			Ball unit = (Ball)elements.get(ID - 1);
-			if (unit.side != 0) {
-				unit.cnt = (int)(-(380 - (unit.x - 1490)) % unit.speed);
+			Ball* unit = (Ball*)created;
+			if (unit->side != 0) {
+				unit->cnt = -((380 - ((int)unit->x - 1490)) % unit->speed);
 			}
 			else {
-				unit.cnt = (int)(-(unit.x - 50) % unit.speed);
+				unit->cnt = -((int)(unit->x - 50) % unit->speed);
 			}
 			break;
 		}
 		case 1: break;
 		default: break;
-		*/
 	}
 }

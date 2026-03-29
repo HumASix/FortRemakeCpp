@@ -2,19 +2,17 @@
 #include "Game.h"
 using namespace std;
 
-Core::Core(Game* game, decimal X, decimal Y, short S) :Shape(X, Y), game(game), unit_x(X), unit_y(Y), side(S) {
+Core::Core(Game* game, decimal X, decimal Y, int S) :Shape(X, Y), game(game), unit_x(X), unit_y(Y), side(S) {
 	id = game->addElement(this);
 	game->wall[side] << this;
 }
 
 void Core::kill() {
 	game->cores[side] = nullptr;
-	game->elements.erase(id);
 	game->wall[side].removeShape(this);
-	delete this;
 }
 
-void Core::step() {     //ÕÕ°áÔ­°æÂß¼­
+KillAction Core::step() {     //ÕÕ°áÔ­°æÂß¼­
 	moveTo(game->bases[side]->x + unit_x, game->bases[side]->y + unit_y);
 	if (game->atk[1 - side].hitTestPoint(x - 40, y - 40) ||
 		game->atk[1 - side].hitTestPoint(x + 40, y - 40) ||
@@ -36,6 +34,7 @@ void Core::step() {     //ÕÕ°áÔ­°æÂß¼­
 		game->hp[side]++;
 	}
 	//dmg_flg = false;
+	return KillAction::NONE;
 }
 
 bool Core::hitTestPoint(decimal X, decimal Y) {

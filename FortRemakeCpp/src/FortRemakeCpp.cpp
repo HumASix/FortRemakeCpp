@@ -7,7 +7,10 @@ using namespace std;
 
 int main()
 {
+    srand(time(NULL));
 	cout << "Hello CMake." << endl;
+
+
     Graphics2D win(1440, 600, "面向对象绘图窗口");
     Game* game = new Game();
     /*
@@ -22,6 +25,6 @@ int main()
     shapes.push_back(new Base(game, 1920-240, 300, 0));
     shapes.push_back(new Core(game, 650, 450, 0));
     */
-    game->run("000P6R", "000P6R", nullptr);
+    game->run("000P6R222222100dYp", "000P6R100P6R", &win);
 	return 0;
 }

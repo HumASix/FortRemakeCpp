@@ -20,6 +20,14 @@ void Shape::moveTo(decimal X, decimal Y) {
 	y = Y;
 }
 
+void Shape::kill() {
+
+}
+
+void Shape::fakeKill() {
+
+}
+
 void Shape::xySync() {       //复刻 flash引擎量子化特性，在任何非0.05倍数移动时调用
 	x = (int)(20 * x) * 0.05F;
 	y = (int)(20 * y) * 0.05F;
@@ -33,6 +41,7 @@ void Shape::ySync() {       //仅针对 y 值的量子化
 	y = (int)(20 * y) * 0.05F;
 }
 
-void Shape::step() {     //每帧执行的代码
+KillAction Shape::step() {     //每帧执行的代码
+	return KillAction::NONE;
 }
 
