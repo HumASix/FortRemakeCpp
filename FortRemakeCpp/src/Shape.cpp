@@ -1,4 +1,5 @@
 #include "Shape.h"
+#include "HitsContainer.h"
 using namespace std;
 
 Shape::Shape(decimal X, decimal Y, bool owned) :x(X), y(Y), owned(owned) {

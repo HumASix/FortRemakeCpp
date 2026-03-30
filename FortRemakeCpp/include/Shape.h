@@ -2,6 +2,7 @@
 #include "Graphics2D.h"
 #include "General.h"
 
+class HitsContainer;
 class Shape {   //最基本的抽象形状类
     friend class CompositeShape;
 private:
@@ -11,7 +12,9 @@ public:
     decimal x;
     decimal y;
     int id;
-    int fakeKillCnt = -1;
+    int lifeCyclePhase = 0;//0:正常状态，>0:fakeKill状态（变成hits等），<0:等待被容器移除、被游戏逻辑销毁
+    HitsContainer* parent = nullptr;
+    //std::list<Shape*>::iterator pointerInList = General::nullIt;
 
     Shape(decimal X, decimal Y, bool owned = false);
 

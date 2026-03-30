@@ -9,7 +9,6 @@ Core::Core(Game* game, decimal X, decimal Y, int S) :Shape(X, Y), game(game), un
 
 void Core::kill() {
 	game->cores[side] = nullptr;
-	game->wall[side].removeShape(this);
 }
 
 KillAction Core::step() {     //ÕÕ°áÔ­°æÂß¼­

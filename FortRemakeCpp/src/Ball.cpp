@@ -10,15 +10,14 @@ Ball::Ball(Game* game, decimal X, decimal Y, int R, int S, int TYPE) :Round(X, Y
 }
 
 void Ball::kill() {
-	game->unit[side].removeShape(this);
 }
 
 void Ball::fakeKill() {
-	HitsDrop::hitDropInit(this);
+	HitsDrop::hitsDropInit(this);
 }
 
 KillAction Ball::step() {     //ÕÕ°áÔ­°æunit_func()
-	if (fakeKillCnt >= 0) {
+	if (lifeCyclePhase > 0) {
 		return HitsDrop::hitsDropStep(this);
 	}
 	if (jump_flg != 1) {

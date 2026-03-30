@@ -13,7 +13,6 @@ Base::Base(Game* game, decimal X, decimal Y, int S) :Shape(X, Y), game(game) {
 }
 
 void Base::kill() {
-	game->wall[side].removeShape(this);
 	died = true;
 }
 

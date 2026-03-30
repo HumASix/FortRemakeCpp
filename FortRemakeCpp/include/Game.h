@@ -7,9 +7,14 @@
 #include "Settings.h"
 #include "Utils.h"
 #include "Ball.h"
+#include "HitsContainer.h"
+#include "HitsContainer2Region.h"
+#include "HitsContainer4Region.h"
+#include "HitsContainerContainer.h"
 
 class Game {
 private:
+    bool alternate = true;//当true时，2被遍历，1作存储，否则1被遍历，2做存储
     bool end = false;
     bool canDraw = false;
     //static GameWindow window;
@@ -34,20 +39,21 @@ public:
     Utils seeder[2] = {Utils(),Utils()};
     Base* bases[2] = { nullptr,nullptr };     //双方车板（要不要用指针形式存储？）
     Core* cores[2] = { nullptr,nullptr };    //双方老家
-    std::list<Shape*> elements = std::list<Shape*>();   //所有需要参与循环的部件
-    CompositeShape wall[2] = { CompositeShape(0,0), CompositeShape(0,0) };   //墙体
-    CompositeShape unit[2] = { CompositeShape(0,0), CompositeShape(0,0) };   //单位
-    CompositeShape shield[2] = { CompositeShape(0,0), CompositeShape(0,0) }; //屏障
-    CompositeShape atk[2] = { CompositeShape(0,0), CompositeShape(0,0) };    //攻击
-    CompositeShape fort[2] = { CompositeShape(0,0), CompositeShape(0,0) };   //要塞主体
-    CompositeShape team[2] = { CompositeShape(0,0), CompositeShape(0,0) };   //队伍
-    CompositeShape heal[2] = { CompositeShape(0,0), CompositeShape(0,0) };   //治疗
-    CompositeShape repair[2] = { CompositeShape(0,0), CompositeShape(0,0) }; //修复
-    CompositeShape jump_u[2] = { CompositeShape(0,0), CompositeShape(0,0) }; //近突
-    CompositeShape jump_f[2] = { CompositeShape(0,0), CompositeShape(0,0) }; //远突
-    CompositeShape snipe[2] = { CompositeShape(0,0), CompositeShape(0,0) }; //狙击
-    CompositeShape turn_ccw[2] = { CompositeShape(0,0), CompositeShape(0,0) }; //顺时针
-    CompositeShape turn_cw[2] = { CompositeShape(0,0), CompositeShape(0,0) }; //逆时针
+    std::vector<Shape*> elements1 = std::vector<Shape*>();   //所有需要参与循环的部件1
+    std::vector<Shape*> elements2 = std::vector<Shape*>();   //所有需要参与循环的部件1
+    HitsContainer wall[2];   //墙体
+    HitsContainer2Region unit[2];   //单位
+    HitsContainer shield[2]; //屏障
+    HitsContainer4Region atk[2];    //攻击
+    HitsContainerContainer fort[2];   //要塞主体
+    HitsContainerContainer team[2];   //队伍
+    HitsContainer heal[2];   //治疗
+    HitsContainer repair[2]; //修复
+    HitsContainer jump_u[2]; //近突
+    HitsContainer jump_f[2]; //远突
+    HitsContainer snipe[2]; //狙击
+    HitsContainer turn_ccw[2]; //顺时针
+    HitsContainer turn_cw[2]; //逆时针
     //public LinkedList<Integer>[] kekkaiIds = new LinkedList[]{ new LinkedList<Integer>(), new LinkedList<Integer>() };
     //public KekkaiField[] kekkaiFields = new KekkaiField[]{ null, null };
     Game();

@@ -11,7 +11,7 @@ int main()
 	cout << "Hello CMake." << endl;
 
 
-    Graphics2D win(1440, 600, "面向对象绘图窗口");
+    //Graphics2D win(1440, 600, "面向对象绘图窗口");
     Game* game = new Game();
     /*
     vector<Shape*> shapes;
@@ -25,6 +25,6 @@ int main()
     shapes.push_back(new Base(game, 1920-240, 300, 0));
     shapes.push_back(new Core(game, 650, 450, 0));
     */
-    game->run("000P6R222222100dYp", "000P6R100P6R", &win);
+    game->run("000P6R222222100dYp", "000P6R100P6R100dYp", nullptr);
 	return 0;
 }

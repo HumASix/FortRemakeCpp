@@ -6,7 +6,7 @@ file(GLOB_RECURSE MY_SOURCES src/*.cpp)
 file(GLOB_RECURSE MY_HEADERS include/*.h)
 
 # 创建项目
-add_executable(FortRemakeCpp ${MY_SOURCES} ${MY_HEADERS} "src/HitsDrop.cpp")
+add_executable(FortRemakeCpp ${MY_SOURCES} ${MY_HEADERS})
 
 # 让 VS 能跳转、能找到头文件（关键）
 target_include_directories(FortRemakeCpp PUBLIC

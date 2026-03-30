@@ -2,7 +2,22 @@
 using namespace std;
 using namespace chrono;
 Game::Game() {
-	
+	for (int i = 0;i < 2;i++) {
+		wall[i] = HitsContainer();   //墙体
+		unit[i] = HitsContainer2Region();   //单位
+		shield[i] =  HitsContainer() ; //屏障
+		atk[i] = HitsContainer4Region();    //攻击
+		fort[i] = HitsContainerContainer() ;   //要塞主体
+		team[i] = HitsContainerContainer();   //队伍
+		heal[i] = HitsContainer();   //治疗
+		repair[i] = HitsContainer(); //修复
+		jump_u[i] = HitsContainer(); //近突
+		jump_f[i] = HitsContainer(); //远突
+		snipe[i] = HitsContainer(); //狙击
+		turn_ccw[i] = HitsContainer(); //顺时针
+		turn_cw[i] = HitsContainer(); //逆时针
+	}
+
 }
 
 Game::~Game() {
@@ -48,7 +63,8 @@ Result Game::run(const string& code1, const string& code2,Graphics2D* g2d ) {
 			 if (canDraw && g2d->isOpen()) {
 				 g2d->handleEvents();
 				 g2d->clear();
-				 for (Shape* element : elements) {
+				 vector<Shape*>& storeContainer = alternate ? elements1 : elements2;//此时一轮更新结束，存储容器存储了所有有效的对象
+				 for (Shape* element : storeContainer) {
 					 element->draw(g2d);
 				 }
 				 g2d->update();
@@ -245,43 +261,50 @@ void Game::judge() {    //裁决爆炸
 }
 
 void Game::update() {  //单位更新
-	if (elements.empty()) return;
+	alternate = !alternate;
+	vector<Shape*>& wrkContainer = alternate ? elements2 : elements1;
+	vector<Shape*>& storeContainer = alternate ? elements1 : elements2;
+	if (wrkContainer.empty()) return;
+	storeContainer.clear();
+	wrkContainer.reserve(2 * wrkContainer.size());//！！！需要提前给遍历容器扩容，不然遍历中添加元素导致自动扩容时，迭代器会失效报错
 	unsigned idUntilExclude = ID;//本轮遍历截止ID（不含）
-	for (auto it = elements.begin();it != elements.end();) {
-		if ((*it)->id >= idUntilExclude) break;
-		switch ((*it)->step())
-		{
-		case KillAction::NONE: {
-			it++;
+	for (auto it = wrkContainer.begin();it != wrkContainer.end();it++) {
+		1;
+		if ((*it)->id >= idUntilExclude) {
+			storeContainer.insert(storeContainer.end(), it, wrkContainer.end());
 			break;
 		}
-		case KillAction::FAKEKILL: {
-			Shape* toBeErased = *it;
-			toBeErased->fakeKill();
-			toBeErased->fakeKillCnt = 0;
-			it = elements.erase(it);
-			toBeErased->id = addElement(toBeErased);
-			break;
+		if ((*it)->lifeCyclePhase < 0) {//已经进入销毁阶段的对象不做step
+			if ((*it)->parent == nullptr) {//如果已与容器取消绑定，就可以释放内存了
+				delete (*it);
+			}
 		}
-		case KillAction::KILL: {
-			(*it)->kill();
-			delete (*it);
-			it = elements.erase(it);
-			break;
-		}
-		default:
-			break;
+		else {
+			switch ((*it)->step())
+			{
+			case KillAction::NONE: {
+				//不需要kill，存储为更新后有效元素
+				storeContainer.push_back(*it);
+				break;
+			}
+			case KillAction::FAKEKILL: {
+				//假kill，暂不存储为更新后有效元素，但插入到工作容器末尾，并修改ID，待本轮遍历结束后整体插入
+				Shape* toBeErased = *it;
+				toBeErased->fakeKill();
+				toBeErased->lifeCyclePhase = 1;
+				toBeErased->id = addElement(toBeErased);
+				break;
+			}
+			case KillAction::KILL: {
+				//真kill，进入销毁阶段
+				(*it)->kill();
+				(*it)->lifeCyclePhase = -1;
+			}
+			default:
+				break;
+			}
 		}
 	}
-	/*
-	for (int i = 0; i < element.size;i++) {
-		if (element[i].id > 本轮遍历截止id) {
-			break;
-		}
-		如果这样写，需要解决对象把自己删除以后i的问题
-		element[i].step(这里能不能把i当参数传进去，这样如果kill的话直接移除element里下标i的元素，省的查找自己在哪个下标了);
-	}
-	*/
 }
 
 Xyrt Game::to_xyrt(const string& str, unsigned offset) {    //5位61进制转x y r数组
@@ -299,7 +322,9 @@ Xyrt Game::to_xyrt(const string& str, unsigned offset) {    //5位61进制转x y r数
 }
 
 unsigned Game::addElement(Shape* s) {      //增加新元素，返回id值
-	elements.push_back(s);
+	//要增加到当前用于遍历的容器里，然后遍历结束后整体移动，不然顺序乱了
+	vector<Shape*>& wrkContainer = alternate ? elements2 : elements1;
+	wrkContainer.push_back(s);
 	return ID++;
 }
 
