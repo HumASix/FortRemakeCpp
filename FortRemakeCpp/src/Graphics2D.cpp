@@ -16,7 +16,7 @@ Graphics2D::Graphics2D(int w, int h, const char* title)
         CW_USEDEFAULT, CW_USEDEFAULT, w, h,
         NULL, NULL, GetModuleHandle(NULL), this
     );
-
+    initFont(20);
     hdc = GetDC(hwnd);
     memDC = CreateCompatibleDC(hdc);
     memBitmap = CreateCompatibleBitmap(hdc, w, h);
@@ -115,6 +115,49 @@ void Graphics2D::drawPolygon(const vector<Point>& points, decimal offsetX, decim
         LineTo(memDC, (int)(G2DSCALE * (points[i].x + offsetX) + G2DTRANSX), (int)(G2DSCALE * (points[i].y + offsetY) + G2DTRANSY));
     }
     LineTo(memDC, (int)(G2DSCALE * (points[0].x + offsetX + G2DTRANSX)), (int)(G2DSCALE * (points[0].y + offsetY) + G2DTRANSY));
+}
+
+void Graphics2D::drawText(decimal x, decimal y, const char* text)
+{
+    drawText(x, y, text, RGB(0, 0, 0));
+}
+
+void Graphics2D::drawText(decimal x, decimal y, const char* text, COLORREF color)
+{
+    if (!text || !*text) return;
+
+    // 应用超采样缩放
+    int px = (int)(x * G2DSCALE + G2DTRANSX);
+    int py = (int)(y * G2DSCALE + G2DTRANSY);
+
+    SetBkMode(memDC, TRANSPARENT);
+    SetTextColor(memDC, color);
+    TextOutA(memDC, px, py, text, (int)strlen(text));
+}
+
+void Graphics2D::initFont(int size) {
+    
+    // 关键：字体大小 * 超采样倍率，保证高清
+    int realSize = (int)(size * G2DSCALE);
+
+    if (hfont) DeleteObject(hfont);
+
+    hfont = CreateFontA(
+        realSize,           // 高度 = 字号（你控制的）
+        0,                  // 宽度自动
+        0, 0,
+        FW_NORMAL,          // 粗细：400正常，700加粗
+        FALSE, FALSE, FALSE,
+        DEFAULT_CHARSET,
+        OUT_DEFAULT_PRECIS,
+        CLIP_DEFAULT_PRECIS,
+        DEFAULT_QUALITY,
+        DEFAULT_PITCH | FF_DONTCARE,
+        "Arial"   // 字体：微软雅黑（清晰）
+    );
+
+    // 选入画布
+    SelectObject(memDC, hfont);
 }
 
 LRESULT CALLBACK Graphics2D::WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {

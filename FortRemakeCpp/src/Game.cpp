@@ -63,6 +63,10 @@ Result Game::run(const string& code1, const string& code2,Graphics2D* g2d ) {
 			 if (canDraw && g2d->isOpen()) {
 				 g2d->handleEvents();
 				 g2d->clear();
+				 g2d->initFont(30);
+				 g2d->drawText(0, -150, (string("1P.HP=") + to_string(hp[0])).c_str());
+				 g2d->drawText(1700, -150, (string("2P.HP=") + to_string(hp[1])).c_str());
+				 g2d->drawText(850, -150, (string("FRAME=") + to_string(time)).c_str());
 				 vector<Shape*>& storeContainer = alternate ? elements1 : elements2;//此时一轮更新结束，存储容器存储了所有有效的对象
 				 for (Shape* element : storeContainer) {
 					 element->draw(g2d);
@@ -73,7 +77,7 @@ Result Game::run(const string& code1, const string& code2,Graphics2D* g2d ) {
 	 }
 	 lastTime = steady_clock::now();
 	 double realTime = duration_cast<nanoseconds>(lastTime - startTime).count() / 1e9;
-	 cout << endl << "结束了，用时（秒）：" << realTime;
+	 cout << endl << "结束了，" << time << "帧，用时（秒）：" << realTime;
  /*
 	 long endTime = System.nanoTime();
 	 int status = -1;
@@ -264,12 +268,18 @@ void Game::update() {  //单位更新
 	alternate = !alternate;
 	vector<Shape*>& wrkContainer = alternate ? elements2 : elements1;
 	vector<Shape*>& storeContainer = alternate ? elements1 : elements2;
+	if (hp0_flg[0] == 0 && hp0_flg[1] == 0) {
+		mid = (int)((bases[0]->x + bases[0]->xs + bases[1]->x - bases[1]->xs) * 0.5F);
+	}
+	for (int i = 0; i <= 1; i++) {
+		unit[i].resign(mid);
+		atk[i].resign(mid);
+	}
 	if (wrkContainer.empty()) return;
 	storeContainer.clear();
 	wrkContainer.reserve(2 * wrkContainer.size());//！！！需要提前给遍历容器扩容，不然遍历中添加元素导致自动扩容时，迭代器会失效报错
 	unsigned idUntilExclude = ID;//本轮遍历截止ID（不含）
 	for (auto it = wrkContainer.begin();it != wrkContainer.end();it++) {
-		1;
 		if ((*it)->id >= idUntilExclude) {
 			storeContainer.insert(storeContainer.end(), it, wrkContainer.end());
 			break;
@@ -339,8 +349,8 @@ void Game::unit_make(float X, float Y, int R, int TYPE, int S) {   //创建单位
 	int wrk = 0;
 	Shape* created;
 	switch (TYPE) {
-		/*
-		case 1: new BowBall(this, X, Y, R, S, TYPE);break;
+	case 1: {created = new U_1_Bow(this, X, Y, R, S, TYPE);break;}
+			/*
 		case 2: new GunBall(this, X, Y, R, S, TYPE);break;
 		case 3: new SwordBall(this, X, Y, R, S, TYPE);break;
 		case 4: new TateBall(this, X, Y, R, S, TYPE);break;

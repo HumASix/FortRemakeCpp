@@ -11,12 +11,14 @@
 #include "HitsContainer2Region.h"
 #include "HitsContainer4Region.h"
 #include "HitsContainerContainer.h"
+#include "units/AllUnits.h"
 
 class Game {
 private:
     bool alternate = true;//当true时，2被遍历，1作存储，否则1被遍历，2做存储
     bool end = false;
     bool canDraw = false;
+    int mid = 960;
     //static GameWindow window;
     bool main_setup(const std::string** codes);
     void base_move();
@@ -25,6 +27,7 @@ private:
     static Xyrt to_xyrt(const std::string& str, unsigned offset);
 
 public:
+    //TODO:成员访问的速度似乎取决于声明顺序，是否应该考虑如何调整？
     bool norikomi_flg = false;    //是否发生对撞
     unsigned ID = 0;   //待分配的ID，只会一直增长
     int hp[2] = { 100, 100 };    //要塞血量

@@ -2,6 +2,7 @@
 #include "General.h"
 #include "HitsContainer.h"
 #include "Ball.h"
+#include "atk/Bullet.h"
 
 class HitsContainer4Region :public HitsContainer {
 private:

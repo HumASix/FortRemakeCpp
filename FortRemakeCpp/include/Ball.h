@@ -6,7 +6,7 @@ class Game;
 
 class Ball :public Round {       //玉基类（请使用new创建）
 protected:
-    Game* game;
+    Game* const game;
 
 public:
     int side;
@@ -44,4 +44,6 @@ public:
     void snipe();
 
     void turn(int degree);
+
+    virtual void draw(Graphics2D* g2d) override;
 };

@@ -61,4 +61,6 @@ void Core::draw(Graphics2D* g2d) {
 	Round(x, y, 33.5F).draw(g2d);
 	Poly(x, y, vector<Point>({ {-27.63934F,-36.86066F},{-36.86066F,-27.63934F},{27.63934F,36.86066F},{36.86066F,27.63934F} })).draw(g2d);
 	Poly(x, y, vector<Point>({ {-27.63934F,36.86066F},{-36.86066F,27.63934F},{27.63934F,-36.86066F},{36.86066F,-27.63934F} })).draw(g2d);
+	g2d->initFont(20);
+	g2d->drawText(x - 8, y, to_string(game->hp[side]).c_str(), RGB(128, 0, 255));
 }

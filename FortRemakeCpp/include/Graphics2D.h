@@ -4,7 +4,7 @@
 
 constexpr float G2DSCALE = .75F;
 constexpr float G2DTRANSX = 0.F;
-constexpr float G2DTRANSY = 0.F;
+constexpr float G2DTRANSY = 150.F;
 
 class Game;
 class Graphics2D {//豆包发力了
@@ -26,6 +26,9 @@ public:
     void drawArc(decimal x, decimal y, decimal r, decimal centerAngleRad, decimal sweepRad);
     void drawRect(decimal x1, decimal y1, decimal x2, decimal y2);
     void drawPolygon(const std::vector<Point>& points, decimal offsetX, decimal offsetY);
+    void drawText(decimal x, decimal y, const char* text);
+    void drawText(decimal x, decimal y, const char* text, COLORREF color);
+    void initFont(int size);
 
 private:
     HWND hwnd;
@@ -35,7 +38,7 @@ private:
     HBITMAP oldBitmap;
     HBRUSH hDefaultBrush;
     Game* whoIsUsingThis = nullptr;
-
+    HFONT hfont;
 
 
     int width, height;

@@ -6,7 +6,7 @@ Ball::Ball(Game* game, decimal X, decimal Y, int R, int S, int TYPE) :Round(X, Y
 	cos_rot = Utils::cos(R);
 	sin_rot = Utils::sin(R);
 	id = game->addElement(this);
-	game->unit[side].addShape(this);
+	game->unit[side] << this;
 }
 
 void Ball::kill() {
@@ -182,4 +182,10 @@ void Ball::turn(int degree) {
 	else if (rot < 0) {
 		rot = rot + 360;
 	}
+}
+
+void Ball::draw(Graphics2D* g2d) {
+	Round::draw(g2d);
+	g2d->initFont(20);
+	g2d->drawText(x - 8, y, to_string(hp).c_str(), RGB(0, 0, 255));
 }
